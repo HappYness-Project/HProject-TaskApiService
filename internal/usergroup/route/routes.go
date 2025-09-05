@@ -38,7 +38,6 @@ func (h *Handler) RegisterRoutes(router chi.Router) {
 	})
 	router.Post("/api/user-groups", h.handleCreateUserGroup)
 	router.Get("/api/users/{userID}/user-groups", h.handleGetUserGroupByUserId)
-
 }
 
 func (h *Handler) handleGetUserGroups(w http.ResponseWriter, r *http.Request) {

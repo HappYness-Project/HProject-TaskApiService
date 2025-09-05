@@ -28,9 +28,10 @@ func main() {
 	logger.Info().Msg(env.AccessTokenSecret)
 	database, err := dbs.ConnectToDb(connStr)
 	if err != nil {
-		logger.Error().Err(err).Msg("Unable to connect to the database.")
+		logger.Fatal().Err(err).Msg("Unable to connect to the database.")
 		return
 	}
+	defer database.Close()
 
 	server := api.NewApiServer(fmt.Sprintf("%s:%s", env.Host, env.Port), env.AccessTokenSecret, database, logger)
 	r := server.Setup()

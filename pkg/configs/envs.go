@@ -29,12 +29,13 @@ type Env struct {
 
 func InitConfig(envString string) Env {
 	env := Env{}
-	if envString == "" {
+	switch envString {
+	case "":
 		workingdir, _ := os.Getwd()
 		viper.SetConfigFile(workingdir + "/../dev-env/local.env")
-	} else if envString == "local" {
+	case "local":
 		viper.SetConfigFile("local.env")
-	} else if envString == "development" {
+	case "development":
 		env.AppEnv = envString
 		env.Host = "0.0.0.0"
 		env.Port = os.Getenv("PORT")

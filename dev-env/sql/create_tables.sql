@@ -109,26 +109,6 @@ CREATE TABLE IF NOT EXISTS public.usergroup_user (
   CONSTRAINT fk_usergroup_user_user_id FOREIGN KEY(user_id) REFERENCES public.user(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS public.chat (
-    id uuid NOT NULL,
-    type CHARACTER VARYING(20) NOT NULL CHECK (type IN ('private', 'group', 'container')),
-    usergroup_id bigint,
-    container_id uuid,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_chat PRIMARY KEY (id),
-    CONSTRAINT fk_chat_usergroup_id FOREIGN KEY (usergroup_id) REFERENCES public.usergroup(id) ON DELETE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS public.chat_participant (
-    id UUID PRIMARY KEY DEFAULT public.uuid_generate_v7(),
-    chat_id UUID NOT NULL REFERENCES public.chat(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES public.user(id) ON DELETE CASCADE,
-    joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    role VARCHAR(10) CHECK (role IN ('admin', 'member')) DEFAULT 'member',
-    status VARCHAR(20) NOT NULL DEFAULT 'active'
-        CHECK (status IN ('active', 'left', 'banned', 'muted', 'pending'))
-);
 
 INSERT INTO public."usergroup"(id, name, description, type, thumbnailurl, is_active) OVERRIDING SYSTEM VALUE VALUES (1, 'user group #1', 'Description for user group 1', 'normal', '', true);
 INSERT INTO public."usergroup"(id, name, description, type, thumbnailurl, is_active) OVERRIDING SYSTEM VALUE VALUES (2, 'user group #2', 'Description for user group 2', 'normal', '', true);
@@ -152,7 +132,7 @@ INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES (5, 1);
 INSERT INTO public.taskcontainer(id, name, description, is_active, activity_level, type, usergroup_id) VALUES ('5951f639-c8ce-4462-8b72-c57458c448fd', 'grocery', 'grocery container for my family', true, 0, 'normal', 1);
 INSERT INTO public.taskcontainer(id, name, description, is_active, activity_level, type, usergroup_id) VALUES ('22095f67-168a-47f4-9d77-90cf27d77c89', 'chores', 'chores container for my family', true, 0, 'normal', 1);
 INSERT INTO public.taskcontainer(id, name, description, is_active, activity_level, type, usergroup_id) VALUES ('9ccba4b5-4745-4d5c-8901-46b159c71516', 'grocery', 'grocery container for my family', true, 0, 'normal', 2);
-INSERT INTO public.task(id, name, description, type, created_at, updated_at, target_date, priority, category, is_completed, is_important) VALUES ('94d277a0-245a-4155-aea3-29f6cbabd849', 'Apple', 'need this for apple pie', '', CURRENT_DATE,CURRENT_DATE,CURRENT_DATE + INTERVAL  '6 days', 'normal', 'grocery', false, false);
+INSERT INTO public.task(id, name, description, type, created_at, updated_at, target_date, priority, category, is_completed, is_important) VALUES ('94d277a0-245a-4155-aea3-29f6cbabd849', 'Apple', 'need this for apple pie', '', CURRENT_DATE,CURRENT_DATE,CURRENT_DATE + INTERVAL  '6 days', 'normal', 'grocery', false, true);
 INSERT INTO public.task(id, name, description, type, created_at, updated_at, target_date, priority, category, is_completed, is_important) VALUES ('06e1840f-b5a9-4008-9add-7170272291d1', 'Banana', 'need this for breakfast', '', CURRENT_DATE,CURRENT_DATE,CURRENT_DATE + INTERVAL  '3 days', 'high', 'grocery', false, false);
 INSERT INTO public.task(id, name, description, type, created_at, updated_at, target_date, priority, category, is_completed, is_important) VALUES ('5d89f6e6-59e7-4232-9292-4f0031c43254', 'Banana', 'need this for breakfast', '', CURRENT_DATE,CURRENT_DATE,CURRENT_DATE + INTERVAL  '4 days', 'normal', 'grocery', false, false);
 INSERT INTO public.task(id, name, description, type, created_at, updated_at, target_date, priority, category, is_completed, is_important) VALUES ('85b6e084-6995-4e49-b128-2e5700b19b67', 'Green onion', 'need for kimchi', '', CURRENT_DATE,CURRENT_DATE,CURRENT_DATE + INTERVAL  '4 days', 'normal', 'grocery', false, false);
@@ -162,30 +142,3 @@ INSERT INTO public.taskcontainer_task(taskcontainer_id, task_id) VALUES ('5951f6
 INSERT INTO public.taskcontainer_task(taskcontainer_id, task_id) VALUES ('5951f639-c8ce-4462-8b72-c57458c448fd', '5d89f6e6-59e7-4232-9292-4f0031c43254');
 INSERT INTO public.taskcontainer_task(taskcontainer_id, task_id) VALUES ('9ccba4b5-4745-4d5c-8901-46b159c71516', '85b6e084-6995-4e49-b128-2e5700b19b67');
 INSERT INTO public.taskcontainer_task(taskcontainer_id, task_id) VALUES ('22095f67-168a-47f4-9d77-90cf27d77c89', '2ce3fc41-d1c6-45b3-9111-bcb979aa943b');
-
-INSERT INTO public.chat(id, type, usergroup_id, container_id, created_at) VALUES ('01987073-0a87-7b32-9439-86868dfe9bd2', 'group', 1, NULL, CURRENT_TIMESTAMP);
-INSERT INTO public.chat(id, type, usergroup_id, container_id, created_at) VALUES ('01987073-cf13-7621-af36-54ce20056d18', 'group', 2, NULL, CURRENT_TIMESTAMP);
-INSERT INTO public.chat(id, type, usergroup_id, container_id, created_at) VALUES ('01987075-16cb-7337-af15-cd28f64c93a3', 'group', 3, NULL, CURRENT_TIMESTAMP);
-INSERT INTO public.chat(id, type, usergroup_id, container_id, created_at) VALUES ('01987074-1f7f-7aad-ad76-a4b83544fa2d', 'group', 4, NULL, CURRENT_TIMESTAMP);
-INSERT INTO public.chat(id, type, usergroup_id, container_id, created_at) VALUES ('01987074-440c-73f8-aa5b-ba2b50a19395', 'group', 5, NULL, CURRENT_TIMESTAMP);
-
--- Sample chat participant data
--- Chat 1 (User Group 1): kevin, macy, testing1 are members (based on usergroup_user table)
-INSERT INTO public.chat_participant(chat_id, user_id, role, status) VALUES
-('01987073-0a87-7b32-9439-86868dfe9bd2', 1, 'admin', 'active'),
-('01987073-0a87-7b32-9439-86868dfe9bd2', 2, 'member', 'active'),
-('01987073-0a87-7b32-9439-86868dfe9bd2', 3, 'member', 'active');
-
--- Chat 2 (User Group 2): testing2 is member
-INSERT INTO public.chat_participant(chat_id, user_id, role, status) VALUES ('01987073-cf13-7621-af36-54ce20056d18', 4, 'admin', 'active');
-
--- Chat 3 (User Group 3): kevin is member
-INSERT INTO public.chat_participant(chat_id, user_id, role, status) VALUES ('01987075-16cb-7337-af15-cd28f64c93a3', 1, 'admin', 'active');
-
--- Chat 4 (User Group 4): macy is member
-INSERT INTO public.chat_participant(chat_id, user_id, role, status) VALUES ('01987074-1f7f-7aad-ad76-a4b83544fa2d', 2, 'admin', 'active');
-
--- Chat 5 (User Group 5): kevin is member
-INSERT INTO public.chat_participant(chat_id, user_id, role, status) VALUES ('01987074-440c-73f8-aa5b-ba2b50a19395', 1, 'admin', 'active');
-
-
