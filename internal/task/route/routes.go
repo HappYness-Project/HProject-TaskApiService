@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"github.com/happYness-Project/taskManagementGolang/internal/task/model"
 	taskRepo "github.com/happYness-Project/taskManagementGolang/internal/task/repository"
 	containerRepo "github.com/happYness-Project/taskManagementGolang/internal/taskcontainer/repository"
@@ -96,18 +94,19 @@ func (h *Handler) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := model.Task{
-		TaskId:     uuid.New().String(),
-		TaskName:   createDto.TaskName,
-		TaskDesc:   createDto.TaskDesc,
-		TaskType:   "",
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		TargetDate: createDto.TargetDate,
-		Priority:   createDto.Priority,
-		Category:   createDto.Category,
+	task, err := model.CreateTask(
+		createDto.TaskName,
+		createDto.TaskDesc,
+		createDto.TargetDate,
+		createDto.Priority,
+		createDto.Category,
+	)
+	if err != nil {
+		h.logger.Error().Err(err).Str("ErrorCode", constants.InvalidParameter).Msg("Invalid task data")
+		response.ErrorResponse(w, http.StatusBadRequest, *(response.New(constants.InvalidParameter, "Invalid task data", err.Error())))
+		return
 	}
-	newTask, err := h.taskRepo.CreateTask(container.Id, task)
+	newTask, err := h.taskRepo.CreateTask(container.Id, *task)
 	if err != nil {
 		h.logger.Error().Err(err).Str("ErrorCode", TaskCreateServerError).Msg("Error occurred during CreateTask")
 		response.ErrorResponse(w, http.StatusBadRequest, *(response.New(TaskCreateServerError, "Failed to create task", err.Error())))
