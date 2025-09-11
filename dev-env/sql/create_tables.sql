@@ -104,9 +104,11 @@ CREATE TABLE IF NOT EXISTS public.taskcontainer_task (
 CREATE TABLE IF NOT EXISTS public.usergroup_user (
   usergroup_id bigint NOT NULL,
   user_id bigint NOT NULL,
+  role character varying(20) NOT NULL DEFAULT 'member',
   PRIMARY KEY (usergroup_id, user_id),
   CONSTRAINT fk_usergroup_user_usergroup_id FOREIGN KEY(usergroup_id) REFERENCES public.usergroup(id) ON DELETE CASCADE,
-  CONSTRAINT fk_usergroup_user_user_id FOREIGN KEY(user_id) REFERENCES public.user(id) ON DELETE CASCADE
+  CONSTRAINT fk_usergroup_user_user_id FOREIGN KEY(user_id) REFERENCES public.user(id) ON DELETE CASCADE,
+  CONSTRAINT chk_usergroup_user_role CHECK (role IN ('admin', 'member'))
 );
 
 
@@ -122,13 +124,13 @@ INSERT INTO public."user"(user_id, username, first_name, last_name, email, is_ac
 INSERT INTO public."user"(user_id, username, first_name, last_name, email, is_active, created_at, updated_at, default_group_id) VALUES ('01959b3a-405b-7591-86dd-87174e2453fd', 'testing1',     'test',     'check',    'testing1@hproject.com',		true, '2024-08-05 00:00:00', 	'2024-08-05 00:00:00',2);
 INSERT INTO public."user"(user_id, username, first_name, last_name, email, is_active, created_at, updated_at, default_group_id) VALUES ('0195c388-d0f4-77d5-be90-971d38344c74', 'testing2',     'test',     'check',    'testing2@hproject.com', 		true, '2024-08-05 00:00:00', 	'2024-08-05 00:00:00',2);
 
-INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES (1, 1);
-INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES (1, 2);
-INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES (1, 3);
-INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES (2, 4);
-INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES (3, 1);
-INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES (4, 2);
-INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES (5, 1);
+INSERT INTO public.usergroup_user(usergroup_id, user_id, role) VALUES (1, 1, 'admin');
+INSERT INTO public.usergroup_user(usergroup_id, user_id, role) VALUES (1, 2, 'member');
+INSERT INTO public.usergroup_user(usergroup_id, user_id, role) VALUES (1, 3, 'member');
+INSERT INTO public.usergroup_user(usergroup_id, user_id, role) VALUES (2, 4, 'admin');
+INSERT INTO public.usergroup_user(usergroup_id, user_id, role) VALUES (3, 1, 'admin');
+INSERT INTO public.usergroup_user(usergroup_id, user_id, role) VALUES (4, 2, 'member');
+INSERT INTO public.usergroup_user(usergroup_id, user_id, role) VALUES (5, 1, 'admin');
 INSERT INTO public.taskcontainer(id, name, description, is_active, activity_level, type, usergroup_id) VALUES ('5951f639-c8ce-4462-8b72-c57458c448fd', 'grocery', 'grocery container for my family', true, 0, 'normal', 1);
 INSERT INTO public.taskcontainer(id, name, description, is_active, activity_level, type, usergroup_id) VALUES ('22095f67-168a-47f4-9d77-90cf27d77c89', 'chores', 'chores container for my family', true, 0, 'normal', 1);
 INSERT INTO public.taskcontainer(id, name, description, is_active, activity_level, type, usergroup_id) VALUES ('9ccba4b5-4745-4d5c-8901-46b159c71516', 'grocery', 'grocery container for my family', true, 0, 'normal', 2);
