@@ -104,13 +104,34 @@ func (h *Handler) handleGetUsersByGroupId(w http.ResponseWriter, r *http.Request
 		response.ErrorResponse(w, http.StatusBadRequest, *(response.New(constants.InvalidParameter, "Invalid parameter", "Invalid Group Id")))
 		return
 	}
-	users, err := h.userRepo.GetUsersByGroupId(groupId)
+
+	usersWithRoles, err := h.userRepo.GetUsersByGroupIdWithRoles(groupId)
 	if err != nil { // should split two error - one is not found, the other is badrequest / server side error.
-		h.logger.Error().Err(err).Msg("Error during Get Users by Group ID")
+		h.logger.Error().Err(err).Msg("Error during Get Users by Group ID with Roles")
 		response.NotFound(w, UserGetNotFound, err.Error())
 		return
 	}
-	response.SuccessJson(w, users, "success", http.StatusOK)
+
+	// Convert to DTOs
+	var userDtos []*UserWithRoleDto
+	for _, userWithRole := range usersWithRoles {
+		dto := &UserWithRoleDto{
+			Id:             userWithRole.User.Id,
+			UserId:         userWithRole.User.UserId,
+			UserName:       userWithRole.User.UserName,
+			FirstName:      userWithRole.User.FirstName,
+			LastName:       userWithRole.User.LastName,
+			CreatedAt:      userWithRole.User.CreatedAt,
+			UpdatedAt:      userWithRole.User.UpdatedAt,
+			Email:          userWithRole.User.Email,
+			IsActive:       userWithRole.User.IsActive,
+			DefaultGroupId: userWithRole.User.DefaultGroupId,
+			Role:           userWithRole.Role,
+		}
+		userDtos = append(userDtos, dto)
+	}
+
+	response.SuccessJson(w, userDtos, "success", http.StatusOK)
 }
 func (h *Handler) responseUser(w http.ResponseWriter, findField string, findVar string) {
 	var user *model.User

@@ -13,6 +13,8 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*model.User, error)
 	GetUserByUsername(username string) (*model.User, error)
 	GetUsersByGroupId(groupId int) ([]*model.User, error)
+	GetUsersByGroupIdWithRoles(groupId int) ([]*model.UserWithRole, error)
+	GetUserRoleInGroup(userId string, groupId int) (string, error)
 	CreateUser(user model.User) error
 	UpdateUser(user model.User) error
 }
@@ -135,6 +137,33 @@ func (m *UserRepo) UpdateUser(user model.User) error {
 	return nil
 }
 
+func (m *UserRepo) GetUsersByGroupIdWithRoles(groupId int) ([]*model.UserWithRole, error) {
+	rows, err := m.DB.Query(sqlGetUsersByGroupIdWithRoles, groupId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*model.UserWithRole
+	for rows.Next() {
+		user, err := scanRowsIntoUserWithRole(rows)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+func (m *UserRepo) GetUserRoleInGroup(userId string, groupId int) (string, error) {
+	var role string
+	err := m.DB.QueryRow(sqlGetUserRoleInGroup, userId, groupId).Scan(&role)
+	if err != nil {
+		return "", err
+	}
+	return role, nil
+}
+
 func scanRowsIntoUser(rows *sql.Rows) (*model.User, error) {
 	user := new(model.User)
 
@@ -155,4 +184,31 @@ func scanRowsIntoUser(rows *sql.Rows) (*model.User, error) {
 	}
 
 	return user, nil
+}
+
+func scanRowsIntoUserWithRole(rows *sql.Rows) (*model.UserWithRole, error) {
+	user := new(model.User)
+	var role string
+
+	err := rows.Scan(
+		&user.Id,
+		&user.UserId,
+		&user.UserName,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.IsActive,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.DefaultGroupId,
+		&role,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.UserWithRole{
+		User: user,
+		Role: role,
+	}, nil
 }

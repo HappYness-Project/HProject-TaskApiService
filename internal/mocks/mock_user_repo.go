@@ -44,6 +44,18 @@ func (m *MockUserRepo) GetUsersByGroupId(groupId int) ([]*userModel.User, error)
 	return args.Get(0).([]*userModel.User), args.Error(1)
 }
 
+// GetUsersByGroupIdWithRoles implements repository.UserRepository.
+func (m *MockUserRepo) GetUsersByGroupIdWithRoles(groupId int) ([]*userModel.UserWithRole, error) {
+	args := m.Called(groupId)
+	return args.Get(0).([]*userModel.UserWithRole), args.Error(1)
+}
+
+// GetUserRoleInGroup implements repository.UserRepository.
+func (m *MockUserRepo) GetUserRoleInGroup(userId string, groupId int) (string, error) {
+	args := m.Called(userId, groupId)
+	return args.Get(0).(string), args.Error(1)
+}
+
 // UpdateDefaultGroupId implements repository.UserRepository.
 func (m *MockUserRepo) UpdateDefaultGroupId(Id int, groupId int) error {
 	args := m.Called(Id, groupId)

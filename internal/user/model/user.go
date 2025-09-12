@@ -60,3 +60,8 @@ func (u *User) UpdateUser(firstName, lastName, email string) {
 	u.Email = email
 	u.UpdatedAt = time.Now()
 }
+
+type UserWithRole struct {
+	*User
+	Role string `json:"role"`
+}
