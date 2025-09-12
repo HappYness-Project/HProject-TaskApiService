@@ -178,12 +178,18 @@ func TestUserHandler(t *testing.T) {
 
 	t.Run("when get users by group ID, Then return status code 200 with users", func(t *testing.T) {
 		groupID := "1"
-		expectedUsers := []*userModel.User{
-			{Id: 1, UserId: "user1", UserName: "Alice"},
-			{Id: 2, UserId: "user2", UserName: "Bob"},
+		expectedUsersWithRoles := []*userModel.UserWithRole{
+			{
+				User: &userModel.User{Id: 1, UserId: "user1", UserName: "Alice"},
+				Role: "admin",
+			},
+			{
+				User: &userModel.User{Id: 2, UserId: "user2", UserName: "Bob"},
+				Role: "member",
+			},
 		}
 
-		mockUserRepo.On("GetUsersByGroupId", 1).Return(expectedUsers, nil)
+		mockUserRepo.On("GetUsersByGroupIdWithRoles", 1).Return(expectedUsersWithRoles, nil)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/user-groups/"+groupID+"/users", nil)
 		rr := httptest.NewRecorder()
@@ -203,17 +209,19 @@ func TestUserHandler(t *testing.T) {
 		require.NoError(t, err)
 
 		dataBytes, _ := json.Marshal(response["data"])
-		var users []userModel.User
+		var users []UserWithRoleDto
 		err = json.Unmarshal(dataBytes, &users)
 		require.NoError(t, err)
 
 		assert.Len(t, users, 2)
-		assert.Equal(t, expectedUsers[0].Id, users[0].Id)
-		assert.Equal(t, expectedUsers[0].UserId, users[0].UserId)
-		assert.Equal(t, expectedUsers[0].UserName, users[0].UserName)
-		assert.Equal(t, expectedUsers[1].Id, users[1].Id)
-		assert.Equal(t, expectedUsers[1].UserId, users[1].UserId)
-		assert.Equal(t, expectedUsers[1].UserName, users[1].UserName)
+		assert.Equal(t, expectedUsersWithRoles[0].User.Id, users[0].Id)
+		assert.Equal(t, expectedUsersWithRoles[0].User.UserId, users[0].UserId)
+		assert.Equal(t, expectedUsersWithRoles[0].User.UserName, users[0].UserName)
+		assert.Equal(t, expectedUsersWithRoles[0].Role, users[0].Role)
+		assert.Equal(t, expectedUsersWithRoles[1].User.Id, users[1].Id)
+		assert.Equal(t, expectedUsersWithRoles[1].User.UserId, users[1].UserId)
+		assert.Equal(t, expectedUsersWithRoles[1].User.UserName, users[1].UserName)
+		assert.Equal(t, expectedUsersWithRoles[1].Role, users[1].Role)
 	})
 
 	t.Run("when get users by group ID with invalid group ID, Then return status code 400", func(t *testing.T) {
