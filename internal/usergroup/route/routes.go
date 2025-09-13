@@ -34,7 +34,7 @@ func (h *Handler) RegisterRoutes(router chi.Router) {
 		r.Get("/{groupID}", h.handleGetUserGroupById)
 		r.Delete("/{groupID}", h.handleDeleteUserGroup)
 		r.Post("/{groupID}/users", h.handleAddUserToGroup)
-		r.Put("/{groupID}/users/{userID}", h.handleRemoveUserFromGroup)
+		r.Delete("/{groupID}/users/{userID}", h.handleRemoveUserFromGroup)
 		r.Patch("/{groupID}/users/{userID}/role", h.handleUpdateUserRoleInGroup)
 	})
 	router.Post("/api/user-groups", h.handleCreateUserGroup)
