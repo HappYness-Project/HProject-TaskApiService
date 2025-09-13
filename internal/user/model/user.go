@@ -63,5 +63,6 @@ func (u *User) UpdateUser(firstName, lastName, email string) {
 
 type UserWithRole struct {
 	*User
-	Role string `json:"role"`
+	Role     string    `json:"role"`
+	JoinedAt time.Time `json:"joined_at"`
 }

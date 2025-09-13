@@ -43,4 +43,5 @@ type UserWithRoleDto struct {
 	IsActive       bool      `json:"is_active"`
 	DefaultGroupId int       `json:"default_group_id"`
 	Role           string    `json:"role"`
+	JoinedAt       time.Time `json:"joined_at"`
 }

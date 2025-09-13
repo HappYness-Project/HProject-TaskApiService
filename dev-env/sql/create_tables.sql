@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS public.usergroup_user (
   usergroup_id bigint NOT NULL,
   user_id bigint NOT NULL,
   role character varying(20) NOT NULL DEFAULT 'member',
+  joined_at timestamp with time zone DEFAULT timezone('UTC', now()),
   PRIMARY KEY (usergroup_id, user_id),
   CONSTRAINT fk_usergroup_user_usergroup_id FOREIGN KEY(usergroup_id) REFERENCES public.usergroup(id) ON DELETE CASCADE,
   CONSTRAINT fk_usergroup_user_user_id FOREIGN KEY(user_id) REFERENCES public.user(id) ON DELETE CASCADE,

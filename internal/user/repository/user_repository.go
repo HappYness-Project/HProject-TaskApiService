@@ -189,6 +189,7 @@ func scanRowsIntoUser(rows *sql.Rows) (*model.User, error) {
 func scanRowsIntoUserWithRole(rows *sql.Rows) (*model.UserWithRole, error) {
 	user := new(model.User)
 	var role string
+	var joined_at sql.NullTime
 
 	err := rows.Scan(
 		&user.Id,
@@ -202,13 +203,15 @@ func scanRowsIntoUserWithRole(rows *sql.Rows) (*model.UserWithRole, error) {
 		&user.UpdatedAt,
 		&user.DefaultGroupId,
 		&role,
+		&joined_at,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.UserWithRole{
-		User: user,
-		Role: role,
+		User:     user,
+		Role:     role,
+		JoinedAt: joined_at.Time,
 	}, nil
 }

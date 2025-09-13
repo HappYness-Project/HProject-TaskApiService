@@ -127,6 +127,7 @@ func (h *Handler) handleGetUsersByGroupId(w http.ResponseWriter, r *http.Request
 			IsActive:       userWithRole.User.IsActive,
 			DefaultGroupId: userWithRole.User.DefaultGroupId,
 			Role:           userWithRole.Role,
+			JoinedAt:       userWithRole.JoinedAt,
 		}
 		userDtos = append(userDtos, dto)
 	}
