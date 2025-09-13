@@ -10,6 +10,7 @@ help:
 	@echo "make rebuild-docker"
 	@echo "make logs"
 	@echo "make down to remove docker containers"
+	@echo "make clean to remove containers, images, and volumes completely"
 	@echo "make test to run the unit test"
 
 version:
@@ -24,6 +25,12 @@ down:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) -p $(CONTAINER_NAME) down
 	@rm -rf $(DEV_ENV_SETUP_FOLDER)/postgres-data
 	@echo "Docker containers removed and postgres data cleaned up."
+
+force-clean:
+	@echo "Removing all containers, images, and data..."
+	@docker compose -f $(DOCKER_COMPOSE_FILE) -p $(CONTAINER_NAME) down --rmi all --volumes --remove-orphans
+	@rm -rf $(DEV_ENV_SETUP_FOLDER)/postgres-data
+	@echo "All Docker containers, images, volumes removed and postgres data cleaned up."
 build:
 	go build -v ./...
 
