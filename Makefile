@@ -22,7 +22,8 @@ start:
 down:
 	@echo "Stopping app..."
 	@docker compose -f $(DOCKER_COMPOSE_FILE) -p $(CONTAINER_NAME) down
-
+	@rm -rf $(DEV_ENV_SETUP_FOLDER)/postgres-data
+	@echo "Docker containers removed and postgres data cleaned up."
 build:
 	go build -v ./...
 
