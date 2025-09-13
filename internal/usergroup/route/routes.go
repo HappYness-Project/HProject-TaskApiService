@@ -35,6 +35,7 @@ func (h *Handler) RegisterRoutes(router chi.Router) {
 		r.Delete("/{groupID}", h.handleDeleteUserGroup)
 		r.Post("/{groupID}/users", h.handleAddUserToGroup)
 		r.Put("/{groupID}/users/{userID}", h.handleRemoveUserFromGroup)
+		r.Patch("/{groupID}/users/{userID}/role", h.handleUpdateUserRoleInGroup)
 	})
 	router.Post("/api/user-groups", h.handleCreateUserGroup)
 	router.Get("/api/users/{userID}/user-groups", h.handleGetUserGroupByUserId)
@@ -211,4 +212,43 @@ func (h *Handler) handleRemoveUserFromGroup(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	response.SuccessJson(w, nil, fmt.Sprintf("User is removed from user group ID: %d", groupId), 204)
+}
+
+func (h *Handler) handleUpdateUserRoleInGroup(w http.ResponseWriter, r *http.Request) {
+	groupId, err := strconv.Atoi(chi.URLParam(r, "groupID"))
+	if err != nil {
+		h.logger.Error().Err(err).Str("ErrorCode", constants.InvalidParameter).Msg("Invalid Group ID")
+		response.ErrorResponse(w, http.StatusBadRequest, *response.New(constants.InvalidParameter, "Invalid Parameter", "Invalid Group ID"))
+		return
+	}
+
+	userId := chi.URLParam(r, "userID")
+	user, err := h.userRepo.GetUserByUserId(userId)
+	if err != nil || user == nil {
+		h.logger.Error().Err(err).Str("ErrorCode", UserNotFound).Msg("User not found")
+		response.NotFound(w, UserNotFound, "Provided user id cannot be found")
+		return
+	}
+
+	var updateDto UpdateUserRoleDto
+	if err := response.ParseJson(r, &updateDto); err != nil {
+		h.logger.Error().Err(err).Str("ErrorCode", constants.RequestBodyError).Msg("Invalid JSON body for UpdateUserRoleRequest")
+		response.InvalidJsonBody(w, "Invalid JSON body")
+		return
+	}
+
+	if updateDto.Role != "admin" && updateDto.Role != "member" {
+		h.logger.Error().Str("ErrorCode", constants.InvalidParameter).Msg("Invalid role value")
+		response.ErrorResponse(w, http.StatusBadRequest, *response.New(constants.InvalidParameter, "Invalid Parameter", "Role must be 'admin' or 'member'"))
+		return
+	}
+
+	err = h.groupRepo.UpdateUserRoleInGroup(groupId, user.Id, updateDto.Role)
+	if err != nil {
+		h.logger.Error().Err(err).Str("ErrorCode", UpdateUserRoleError).Msg("Error updating user role")
+		response.ErrorResponse(w, http.StatusBadRequest, *response.New(UpdateUserRoleError, "Bad Request", "Failed to update user role in group"))
+		return
+	}
+
+	response.SuccessJson(w, nil, fmt.Sprintf("User role updated to '%s' in group ID: %d", updateDto.Role, groupId), http.StatusOK)
 }

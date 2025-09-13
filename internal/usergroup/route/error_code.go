@@ -20,6 +20,7 @@ const (
 	DeleteUserGroupError = prefix + "delete_server_error"
 
 	RemoveUserFromUserGroupError = prefix + "remove_user_from_Usergroup_server_error"
+	UpdateUserRoleError          = prefix + "update_user_role_error"
 )
 
 // var (

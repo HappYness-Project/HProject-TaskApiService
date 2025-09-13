@@ -5,3 +5,7 @@ type CreateUserGroupDto struct {
 	GroupDesc string `json:"description"`
 	GroupType string `json:"type"`
 }
+
+type UpdateUserRoleDto struct {
+	Role string `json:"role"`
+}

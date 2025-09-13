@@ -18,6 +18,7 @@ type UserGroupRepository interface {
 	CreateGroupWithUsers(ug model.UserGroup, userId int) (int, error)
 	InsertUserGroupUserTable(groupId int, userId int) error
 	RemoveUserFromUserGroup(groupId int, userId int) error
+	UpdateUserRoleInGroup(groupId int, userId int, role string) error
 	DeleteUserGroup(id int) error
 }
 type UserGroupRepo struct {
@@ -139,6 +140,18 @@ func (m *UserGroupRepo) RemoveUserFromUserGroup(groupId int, userId int) error {
 	id, _ := result.RowsAffected()
 	if id == 0 {
 		fmt.Printf("none of the data has been removed")
+	}
+	return nil
+}
+
+func (m *UserGroupRepo) UpdateUserRoleInGroup(groupId int, userId int, role string) error {
+	result, err := m.DB.Exec(sqlUpdateUserRoleInGroup, groupId, userId, role)
+	if err != nil {
+		return fmt.Errorf("unable to update user role in usergroup_user table : %w", err)
+	}
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("no user found in the specified group to update role")
 	}
 	return nil
 }

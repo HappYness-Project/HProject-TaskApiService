@@ -45,3 +45,9 @@ func (m *MockUserGroupRepo) CreateGroupWithUsers(ug model.UserGroup, userId int)
 	args := m.Called(ug, userId)
 	return args.Get(0).(int), args.Error(0)
 }
+
+// UpdateUserRoleInGroup implements repository.UserGroupRepository.
+func (m *MockUserGroupRepo) UpdateUserRoleInGroup(groupId int, userId int, role string) error {
+	args := m.Called(groupId, userId, role)
+	return args.Error(0)
+}
