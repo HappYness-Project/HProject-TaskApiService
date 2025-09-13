@@ -114,7 +114,7 @@ func (m *UserGroupRepo) CreateGroupWithUsers(ug model.UserGroup, userId int) (in
 		return 0, fmt.Errorf("unable to insert into usergroup table : %w", err)
 	}
 
-	_, err = tx.Exec(sqlAddUserToUserGroup, lastInsertedId, userId)
+	_, err = tx.Exec(sqlAddUserToUserGroupAdmin, lastInsertedId, userId)
 	if err != nil {
 		return 0, err
 	}

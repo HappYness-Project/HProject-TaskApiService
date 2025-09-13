@@ -13,6 +13,7 @@ const (
 							VALUES ($1, $2, $3, $4, $5) RETURNING id;`
 
 	sqlAddUserToUserGroup      = `INSERT INTO public.usergroup_user(usergroup_id, user_id) VALUES ($1, $2)`
+	sqlAddUserToUserGroupAdmin = `INSERT INTO public.usergroup_user(usergroup_id, user_id, role) VALUES ($1, $2, 'admin')`
 	sqlRemoveUserFromUserGroup = `DELETE FROM public.usergroup_user WHERE usergroup_id = $1 AND user_id = $2`
 	sqlUpdateUserRoleInGroup   = `UPDATE public.usergroup_user SET role = $3 WHERE usergroup_id = $1 AND user_id = $2`
 
