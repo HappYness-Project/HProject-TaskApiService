@@ -205,6 +205,17 @@ func (h *Handler) handleRemoveUserFromGroup(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// Check if user's default group matches the group they're being removed from
+	if user.DefaultGroupId == groupId {
+		// Clear the default group since they're being removed
+		user.ClearDefaultGroup()
+		err = h.userRepo.UpdateUser(*user)
+		if err != nil {
+			h.logger.Error().Err(err).Str("ErrorCode", "UpdateUserError").Msg("Failed to clear default group")
+			// Continue with removal even if this fails - log but don't block
+		}
+	}
+
 	err = h.groupRepo.RemoveUserFromUserGroup(groupId, user.Id)
 	if err != nil {
 		h.logger.Error().Err(err).Str("ErrorCode", RemoveUserFromUserGroupError).Msg(err.Error())
